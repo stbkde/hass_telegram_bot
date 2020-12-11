@@ -71,7 +71,7 @@ automation:
         data:
           target: '{{ trigger.event.data.user_id }}'
           message: >
-            Okay {{ trigger.event.data.from_first }}, Bella Casa wird neu gestartet.
+            Okay {{ trigger.event.data.from_first }}, Home Assistant wird neu gestartet.
   
       - service: homeassistant.restart
   
@@ -97,5 +97,5 @@ automation:
             Okay {{ trigger.event.data.from_first }}, Home Assistant Host wird neu gestartet.
 
       - service: hassio.host_reboot
-      
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
