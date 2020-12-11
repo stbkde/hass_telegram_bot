@@ -12,3 +12,6 @@ else
     echo "Pushing data to remote server!!!"
     git push -u origin master
 fi
+
+echo "Pushing data to remote server!!!"
+git push -u origin master
