@@ -1,0 +1,268 @@
+################################################
+## Automation
+################################################
+automation:
+
+  - alias: "Telegram bot Systeminfo Menu"
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: "/systeminfo"
+
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          command: "/systeminfo"
+
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: "{{ trigger.event.data.user_id }}"
+          message: "Welche Information benötigst du?"
+          inline_keyboard:
+            - "Verbindungsstatus:/connection_state"
+            - "Lokale IP-Adresse:/ip_addr"
+            - "CPU-Info:/cpu_info"
+            - "Disk-Info:/disk_info"
+            - "Startmenü:/start"
+          parse_mode: html
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  - alias: "Telegram bot get connection infos"
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: "/connection_state"
+
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          command: "/connection_state"
+
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: "{{ trigger.event.data.user_id }}"
+          message: >
+            Internetverbindung: {{ 'OK' if states('binary_sensor.internet_connection') == 'on' else 'Keine Verbindung!' }}
+            
+            Verbindung zu Nabu Casa: {{ 'OK' if states('binary_sensor.remote_ui') == 'on' else 'Keine Verbindung!' }}
+
+
+            Lokale IP-Adresse: {{ states('sensor.local_ip') }}
+
+            Externe IP-Adresse: {{ states('sensor.external_ip') }}
+          inline_keyboard:
+            - "Zum Startmenü:/start, Löschen:/delmsg"
+            - "Zum Systemmenü:/system"
+          parse_mode: html
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  - alias: "Telegram bot get cpu infos"
+    initial_state: true
+    mode: single
+
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: "/cpu_info"
+
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          command: "/cpu_info"
+
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: "{{ trigger.event.data.user_id }}"
+          message: >
+            <b>CPU-Infos</b>
+
+
+            Temperatur: {{ states('sensor.cpu_temperature') }}{{ state_attr('sensor.cpu_temperature', 'unit_of_measurement') }}
+            
+            Use: {{ states.sensor.processor_use_percent.state }}{{ state_attr('sensor.processor_use_percent', 'unit_of_measurement') }}
+            
+            Load 1 minute: {{ states.sensor.load_1m.state }}
+            
+            Load 5 minute: {{ states.sensor.load_5m.state }}
+            
+            Load 15 minute: {{ states.sensor.load_15m.state }}
+          inline_keyboard:
+            - "Zum Startmenü:/start, Löschen:/delmsg"
+            - "Zum Systemmenü:/system"
+          parse_mode: html
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  - alias: "Telegram bot get disk infos"
+    initial_state: true
+    mode: single
+
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: "/disk_info"
+
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          command: "/disk_info"
+
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: "{{ trigger.event.data.user_id }}"
+          message: >
+            <b>Disk-Infos</b>
+
+
+            Verwendeter Speicher: {{ states('sensor.disk_use_percent') }}{{ state_attr('sensor.disk_use_percent', 'unit_of_measurement') }}
+
+            Freier Speicher: {{ states('sensor.disk_free') }} {{ state_attr('sensor.disk_free', 'unit_of_measurement') }}
+          inline_keyboard:
+            - "Zum Startmenü:/start, Löschen:/delmsg"
+            - "Zum Systemmenü:/system"
+          parse_mode: html
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  - alias: "Telegram bot get local ip"
+    initial_state: true
+    mode: single
+
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: "/ip_addr"
+
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          command: "/ip_addr"
+
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: "{{ trigger.event.data.user_id }}"
+          message: >
+            Lokale IP-Adresse: {{ states('sensor.local_ip') }}
+            
+            Externe IP-Adresse: {{ states('sensor.external_ip') }}
+          inline_keyboard:
+            - "Zum Startmenü:/start, Löschen:/delmsg"
+            - "Zum Systemmenü:/system"
+          parse_mode: html
+            
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  - alias: "Telegram bot get unavailable entities"
+    initial_state: true
+    mode: single
+
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: "/unavailable_entities"
+
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          command: "/unavailable_entities"
+
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: "{{ trigger.event.data.user_id }}"
+          message: >
+            <b>Nicht verfügbare Entitäten</b>
+
+
+            {% if states("sensor.unavailable_entities")|int == 0 %}
+            Keine Entitäten gefunden.
+            {% else %}
+            Folgende Entitäten haben den Zustand
+
+            <code>unavailable</code>, <code>unknown</code> oder 
+
+            <code>none</code>:
+
+
+            {{ states.sensor.unavailable_entities.attributes.entities }}
+
+
+            {{ states("sensor.unavailable_entities") }} Entitäten gefunden.
+            {% endif %}
+
+
+            <i>Zuletzt aktualisiert: {{ states("sensor.date_time") }}</i>
+
+
+            http://{{ states("sensor.local_ip") }}/developer-tools/state
+          inline_keyboard:
+            - "Zum Startmenü:/start, Löschen:/delmsg"
+            - "Zum Systemmenü:/system"
+            - "Aktualisieren:/update_unavailable_entities"
+          parse_mode: html
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  - alias: "Telegram bot update unavailable entities message"
+    initial_state: true
+    mode: single
+
+    trigger:
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          command: "/update_unavailable_entities"
+
+    action:
+      - service: telegram_bot.edit_message
+        data_template:
+          message_id: "{{ trigger.event.data.message.message_id }}"
+          chat_id: "{{ trigger.event.data.chat_id }}"
+          message_tag: "unavailable_entities"
+          message: >
+            <b>Nicht verfügbare Entitäten</b>
+
+
+            {% if states("sensor.unavailable_entities")|int == 0 %}
+            Keine Entitäten gefunden.
+            {% else %}
+            Folgende Entitäten haben den Zustand
+
+            <code>unavailable</code>, <code>unknown</code> oder 
+
+            <code>none</code>:
+
+
+            {{ states.sensor.unavailable_entities.attributes.entities }}
+
+
+            {{ states("sensor.unavailable_entities") }} Entitäten gefunden.
+            {% endif %}
+
+
+            <i>Zuletzt aktualisiert: {{ states("sensor.date_time") }}</i>
+
+
+            http://{{ states("sensor.local_ip") }}/developer-tools/state
+          inline_keyboard:
+            - "Zum Startmenü:/start, Löschen:/delmsg"
+            - "Zum Systemmenü:/system"
+            - "Aktualisieren:/update_unavailable_entities"
+          parse_mode: html
+          disable_web_page_preview: true
+          disable_notification: false
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

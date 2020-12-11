@@ -1,0 +1,124 @@
+
+automation:
+  
+  - id: 'telegramrepeat10m'
+    alias: 'Telegram callback to repeat message in 30 minutes'
+    trigger:
+      platform: event
+      event_type: telegram_callback
+      event_data:
+        data: '/10m'
+
+    action:
+      - service: telegram_bot.answer_callback_query
+        data_template:
+          callback_query_id: '{{ trigger.event.data.id }}'
+          message: 'OK {{ trigger.event.data.from_first }}, ich erinnere dich in 10 Minuten nocheinmal.'
+          
+      - service: telegram_bot.edit_replymarkup
+        data_template:
+          message_id: '{{ trigger.event.data.message.message_id }}'
+          chat_id: '{{ trigger.event.data.user_id }}'
+          inline_keyboard: 
+            - "Startmenü:/start"
+
+      - delay: '00:10:00'
+
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >
+            **{{ trigger.event.data.from_first }}, da bin ich wieder. Ich sollte dich an folgendes erinnern:**
+
+
+            {{ trigger.event.data.message.text }}
+          inline_keyboard:
+            - 'Erinnerung in 10 Minuten:/10m, Erinnerung in 30 Minuten:/30m'
+            - 'Keine Erinnerung:/removekeyboard'
+            - "Startmenü:/start"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  - id: 'telegram_repeat_30m'
+    alias: 'Telegram callback to repeat message in 30 minutes'
+    trigger:
+      platform: event
+      event_type: telegram_callback
+      event_data:
+        data: '/30m'
+
+    action:
+      - service: telegram_bot.answer_callback_query
+        data_template:
+          callback_query_id: '{{ trigger.event.data.id }}'
+          message: 'OK {{ trigger.event.data.from_first }}, ich erinnere dich in 30 Minuten nocheinmal.'
+          
+      - service: telegram_bot.edit_replymarkup
+        data_template:
+          message_id: '{{ trigger.event.data.message.message_id }}'
+          chat_id: '{{ trigger.event.data.user_id }}'
+          inline_keyboard: 
+            - "Startmenü:/start"
+
+      - delay: '00:30:00'
+
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >
+            **{{ trigger.event.data.from_first }}, hier bin ich wieder. Ich sollte dich an folgendes erinnern:**
+
+
+            {{ trigger.event.data.message.text }}
+          inline_keyboard:
+            - 'Erinnerung in 10 Minuten:/10m, Erinnerung in 30 Minuten:/30m'
+            - 'Keine Erinnerung:/removekeyboard'
+            - "Startmenü:/start"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  - id: 'telegram_remove_inline_keyboard'
+    alias: 'Telegram callback to remove keyboard'
+
+    trigger:
+      platform: event
+      event_type: telegram_callback
+      event_data:
+        data: '/removekeyboard'
+
+    action:
+      - service: telegram_bot.answer_callback_query
+        data_template:
+          callback_query_id: '{{ trigger.event.data.id }}'
+          message: 'OK'
+
+      - service: telegram_bot.edit_replymarkup
+        data_template:
+          message_id: '{{ trigger.event.data.message.message_id }}'
+          chat_id: '{{ trigger.event.data.user_id }}'
+          inline_keyboard: 
+            - "Startmenü:/start"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  - id: 'telegram_delete_message'
+    alias: 'Telegram callback to remove message'
+
+    trigger:
+      platform: event
+      event_type: telegram_callback
+      event_data:
+        data: '/delmsg'
+
+    action:
+      # - service: telegram_bot.answer_callback_query
+      #   data_template:
+      #     callback_query_id: '{{ trigger.event.data.id }}'
+      #     message: 'OK'
+
+      - service: telegram_bot.delete_message
+        data_template:
+          message_id: '{{ trigger.event.data.message.message_id }}'
+          chat_id: '{{ trigger.event.data.user_id }}'
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

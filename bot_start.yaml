@@ -1,0 +1,60 @@
+
+automation:
+
+  - alias: 'Telegram bot asks what should be restarted'
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: '/start'
+
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          command: '/start'
+        
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >-
+            <b>Willkommen!</b>
+
+            Nicht verfügbare Entitäten: {{ states("sensor.unavailable_entities") }}
+            
+            Freier Speicher: {{ states('sensor.disk_free') }} {{ state_attr('sensor.disk_free', 'unit_of_measurement') }}
+          inline_keyboard:
+            - 'System-Menü:/system'
+            - 'System-Infos:/systeminfo'
+            - 'Ein Problem ist aufgetreten:/problem'
+          parse_mode: html
+          disable_web_page_preview: true
+          disable_notification: false
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  - alias: 'Telegram bot system menu'
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: '/system'
+
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          command: '/system'
+        
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'
+          message: 'System-Menü'
+          inline_keyboard:
+            - "Bella Casa oder ein Modul neustarten:/restart"
+            - "Ping:/ping"
+            - "Nicht verfügbare Entitäten:/unavailable_entities"
+            - "Startmenü:/start"
+          parse_mode: html
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

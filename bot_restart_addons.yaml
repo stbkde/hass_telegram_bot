@@ -1,0 +1,104 @@
+################################################
+## Automation
+################################################
+automation:
+
+  - alias: 'Telegram bot restart autossh'
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: '/restart_autossh'
+  
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          command: '/restart_autossh'
+        
+    action:
+      - service: telegram_bot.send_message
+        data:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >
+            Okay {{ trigger.event.data.from_first }}, AutoSSH wird neu gestartet.
+  
+      - service: hassio.addon_restart
+        data:
+          addon: "fc962596_autossh"
+  
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  - alias: 'Telegram bot restart ssh'
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: '/restart_ssh'
+  
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          command: '/restart_ssh'
+        
+    action:
+      - service: telegram_bot.send_message
+        data:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >
+            Okay {{ trigger.event.data.from_first }}, SSH wird neu gestartet.
+  
+      - service: hassio.addon_restart
+        data:
+          addon: "a0d7b954_ssh"
+  
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  - alias: 'Telegram bot restart esphome'
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: '/restart_esphome'
+  
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          command: '/restart_esphome'
+        
+    action:
+      - service: telegram_bot.send_message
+        data:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >
+            Okay {{ trigger.event.data.from_first }}, ESPHome wird neu gestartet.
+  
+      - service: hassio.addon_restart
+        data:
+          addon: "a0d7b954_esphome"
+  
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  - alias: 'Telegram bot restart vscode'
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: '/restart_vscode'
+  
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          command: '/restart_vscode'
+        
+    action:
+      - service: telegram_bot.send_message
+        data:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >
+            Okay {{ trigger.event.data.from_first }}, VSCode wird neu gestartet.
+  
+      - service: hassio.addon_restart
+        data:
+          addon: "a0d7b954_vscode"
+  
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

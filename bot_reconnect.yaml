@@ -1,0 +1,68 @@
+################################################
+## Automation
+################################################
+automation:
+
+  - alias: 'Telegram bot reconnect cloud'
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: '/reconnect_cloud'
+  
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          command: '/reconnect_cloud'
+        
+    action:
+      - service: telegram_bot.send_message
+        data:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >
+            Okay {{ trigger.event.data.from_first }}, ich versuche die Verbindung zu Nabu Casa wiederherzustellen.
+  
+      - service: cloud.remote_connect
+
+      - delay:
+          seconds: 5
+
+      - service: telegram_bot.send_message
+        data:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >
+            {{ "Verbindung wurde hergestellt." if is_state('binary_sensor.remote_ui', 'on') else "Ich konnte keine Verbindung zu Nabu Casa herstellen." }}
+  
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  
+  - alias: 'Telegram bot disconnect cloud'
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: '/disconnect_cloud'
+  
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          command: '/disconnect_cloud'
+        
+    action:
+      - service: telegram_bot.send_message
+        data:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >
+            Okay {{ trigger.event.data.from_first }}, die Verbindung zu Nabu Casa wird unterbrochen.
+  
+      - service: cloud.remote_disconnect
+
+      - delay:
+          seconds: 5
+
+      - service: telegram_bot.send_message
+        data:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >
+            Verbunden: {{ states("binary_sensor.remote_ui") }}
+  
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -1,0 +1,101 @@
+################################################
+## Automation
+################################################
+automation:
+
+  - alias: 'Telegram bot asks what should be restarted'
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: '/restart'
+  
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          command: '/restart'
+        
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'
+          message: 'Was möchtest du neu starten?'
+          inline_keyboard:
+            - "Home Assistant:/restart_hass"
+            - "Home Assistant Host:/restart_host"
+            - "Addon: AutoSSH:/restart_autossh"
+            - "Addon: SSH:/restart_ssh"
+            - "Addon: VS Code:/restart_vscode"
+            - "Addon: ESPHome:/restart_esphome"
+            - "Startmenü:/start"
+  
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  - alias: 'Telegram bot asks what should be reconnected'
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: '/reconnect'
+  
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          command: '/reconnect'
+        
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'
+          message: 'Was möchtest du neu verbinden?'
+          inline_keyboard:
+            - "Nabu Casa Cloud:/reconnect_cloud"
+            - "Startmenü:/start"
+  
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  
+  - alias: 'Telegram bot restart home assistant'
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: '/restart_hass'
+  
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          command: '/restart_hass'
+  
+    action:
+      - service: telegram_bot.send_message
+        data:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >
+            Okay {{ trigger.event.data.from_first }}, Bella Casa wird neu gestartet.
+  
+      - service: homeassistant.restart
+  
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  - alias: "Telegram bot restart home assistant host"
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: "/restart_host"
+
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          command: "/restart_host"
+
+    action:
+      - service: telegram_bot.send_message
+        data:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >
+            Okay {{ trigger.event.data.from_first }}, Home Assistant Host wird neu gestartet.
+
+      - service: hassio.host_reboot
+      
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

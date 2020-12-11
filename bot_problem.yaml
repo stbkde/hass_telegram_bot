@@ -1,0 +1,74 @@
+################################################
+## Automation
+################################################
+automation:
+
+  - alias: 'Telegram bot problem menu'
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: '/problem'
+  
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          command: '/problem'
+        
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >
+            Okay {{ trigger.event.data.from_first }}. Bitte wähle aus, um welches Problem es sich handelt:
+          inline_keyboard:
+            - "Kein Zugriff auf die Weboberfläche:/problem_no_webui"
+            - "Startmenü:/start"
+  
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  
+  - alias: 'Telegram bot problem no web ui'
+    trigger:
+      - platform: event
+        event_type: telegram_callback
+        event_data:
+          command: '/problem_no_webui'
+        
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >-
+            Das klingt nicht gut {{ trigger.event.data.from_first }}. Überprüfe bitte folgendes:
+                    
+            *Hast du Zugriff mit deinem Handy?*
+  
+            Wenn nicht, überprüfe, ob ConnectBot läuft und du mit dem Server verbunden bist.
+            Nach einem Neustart deines Smartphones muss die App einmalig ausgeführt und mit dem Server verbunden werden.
+            Öffne die App, klicke auf die Verbindung. Jetzt sollte die Verbindung aufgebaut werden. Sollte die Verbindung abgebrochen sein, dann schließe die Verbindung und öffne sie erneut.
+            
+            
+            *Hast du Zugriff mit deinem Smartphone, jedoch nicht mit dem PC?*
+  
+            Starte bitte deinem PC neu.
+            
+            
+            *Hast du überhaupt keinen Zugriff auf die Weboberfläche?*
+  
+            Drück nun auf "Verbindung neustarten".
+          inline_keyboard:
+            - "Verbindung zu Nabu Casa herstellen:/reconnect_cloud"
+            - "Verbindung über AutoSSH neustarten:/restart_autossh"
+            - "Ich habe das Problem selbst behoben:/start"
+
+      - service: telegram_bot.send_message
+        data_template:
+          target: '{{ trigger.event.data.user_id }}'
+          message: >-
+            Du kannst versuchen die Weboberfläche im lokalen Netzwerk aufzurufen. 
+            
+            Die Adresse lautet: http://{{ states.sensor.local_ip.state }}:8123
+
+            Solltest du darüber Zugriff auf Home Assistant haben, besteht keine Verbindung zu Nabu Casa. Klicke auf "Verbindung zu Nabu Casa herstellen". Sollte die Verbindung trotz dessen nicht zustande kommen, kann es sein, dass der Dienst nicht online ist. Warte eine Stunde und versuche es, falls sich da Problem bereits von selbst erledigt hat, erneut.
+  
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
