@@ -51,7 +51,7 @@ automation:
           target: '{{ trigger.event.data.user_id }}'
           message: 'System-Menü'
           inline_keyboard:
-            - "Bella Casa oder ein Modul neustarten:/restart"
+            - "Home Assistant oder ein Modul neustarten:/restart"
             - "Ping:/ping"
             - "Nicht verfügbare Entitäten:/unavailable_entities"
             - "Startmenü:/start"
